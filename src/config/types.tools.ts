@@ -422,8 +422,14 @@ export type ToolsConfig = {
     economicCalendar?: {
       /** Enable economic_calendar tool (default: true). */
       enabled?: boolean;
+      /** Default provider (default: "fred"). */
+      provider?: "fred" | "bls" | "tradingeconomics";
       /** Trading Economics API key (optional; defaults to TRADING_ECONOMICS_API_KEY env var). */
       apiKey?: string;
+      /** FRED API key (optional; defaults to FRED_API_KEY env var). */
+      fredApiKey?: string;
+      /** BLS API key (optional; defaults to BLS_API_KEY/BLS_PUBLIC_DATA_API_KEY env var). */
+      blsApiKey?: string;
       /** Trading Economics API base URL (default: https://api.tradingeconomics.com). */
       baseUrl?: string;
       /** Default country filter (e.g., "united states" or "all"). */

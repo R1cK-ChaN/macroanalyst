@@ -2,7 +2,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { withEnv } from "../../test-utils/env.js";
 import { createEconomicCalendarTool, __testing } from "./economic-calendar.js";
 
-const { parseNumericValue, resolveDateRange, resolveImportance } = __testing;
+const { parseNumericValue, resolveDateRange, resolveImportance, resolveProvider, resolveAction } =
+  __testing;
 
 describe("economic_calendar helpers", () => {
   it("parses numeric values from decorated strings", () => {
@@ -12,12 +13,12 @@ describe("economic_calendar helpers", () => {
   });
 
   it("validates date range order and format", () => {
-    expect(resolveDateRange({ startDate: "2026-02-01", endDate: "2026-02-10", daysAhead: 7 })).toEqual(
-      {
-        startDate: "2026-02-01",
-        endDate: "2026-02-10",
-      },
-    );
+    expect(
+      resolveDateRange({ startDate: "2026-02-01", endDate: "2026-02-10", daysAhead: 7 }),
+    ).toEqual({
+      startDate: "2026-02-01",
+      endDate: "2026-02-10",
+    });
     expect(
       resolveDateRange({ startDate: "2026-02-40", endDate: "2026-02-10", daysAhead: 7 }),
     ).toMatchObject({
@@ -32,6 +33,13 @@ describe("economic_calendar helpers", () => {
     expect(resolveImportance(3)).toBe(3);
     expect(resolveImportance(0)).toBeUndefined();
     expect(resolveImportance(5)).toBeUndefined();
+  });
+
+  it("defaults provider/action and parses valid overrides", () => {
+    expect(resolveProvider(undefined, undefined)).toBe("fred");
+    expect(resolveProvider("bls", undefined)).toBe("bls");
+    expect(resolveAction(undefined)).toBe("calendar");
+    expect(resolveAction("series")).toBe("series");
   });
 });
 
@@ -52,6 +60,7 @@ describe("economic_calendar tool", () => {
       }
 
       const result = await tool.execute("call1", {
+        provider: "tradingeconomics",
         startDate: "2026-02-01",
         endDate: "2026-02-02",
       });
@@ -105,6 +114,7 @@ describe("economic_calendar tool", () => {
     }
 
     const result = await tool.execute("call2", {
+      provider: "tradingeconomics",
       country: "united states",
       startDate: "2026-02-01",
       endDate: "2026-02-10",

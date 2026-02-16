@@ -118,8 +118,13 @@ export const FIELD_HELP: Record<string, string> = {
     "Firecrawl maxAge (ms) for cached results when supported by the API.",
   "tools.web.fetch.firecrawl.timeoutSeconds": "Timeout in seconds for Firecrawl requests.",
   "tools.web.economicCalendar.enabled": "Enable the economic_calendar tool (default: true).",
+  "tools.web.economicCalendar.provider":
+    'Default provider for economic_calendar ("fred", "bls", or "tradingeconomics"; default: "fred").',
   "tools.web.economicCalendar.apiKey":
     "Trading Economics API key (fallback: TRADING_ECONOMICS_API_KEY env var).",
+  "tools.web.economicCalendar.fredApiKey": "FRED API key (fallback: FRED_API_KEY env var).",
+  "tools.web.economicCalendar.blsApiKey":
+    "BLS API key (fallback: BLS_API_KEY or BLS_PUBLIC_DATA_API_KEY env var).",
   "tools.web.economicCalendar.baseUrl":
     "Trading Economics API base URL (default: https://api.tradingeconomics.com).",
   "tools.web.economicCalendar.defaultCountry":
@@ -128,8 +133,7 @@ export const FIELD_HELP: Record<string, string> = {
     "Default lookahead days when endDate is omitted (default: 7).",
   "tools.web.economicCalendar.maxEvents":
     "Default maximum event rows returned by economic_calendar (default: 50, cap: 200).",
-  "tools.web.economicCalendar.timeoutSeconds":
-    "Timeout in seconds for economic_calendar requests.",
+  "tools.web.economicCalendar.timeoutSeconds": "Timeout in seconds for economic_calendar requests.",
   "tools.web.economicCalendar.cacheTtlMinutes":
     "Cache TTL in minutes for economic_calendar results.",
   "channels.slack.allowBots":

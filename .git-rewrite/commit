@@ -1,0 +1,6 @@
+tree 04f9936ef73347ec0a682ff63e2e8f710eaa123f
+parent 289272f16a3c1f33ce390c297a1d02fc3b80a10e
+author Vignesh Natarajan <vigneshnatarajan92@gmail.com> 1771117853 -0800
+committer Vignesh Natarajan <vigneshnatarajan92@gmail.com> 1771117853 -0800
+
+Media: include state workspace/sandbox in local path allowlist

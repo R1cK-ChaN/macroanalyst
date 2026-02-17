@@ -3,12 +3,6 @@
 
 version: 2
 
-registries:
-  npm-npmjs:
-    type: npm-registry
-    url: https://registry.npmjs.org
-    replaces-base: true
-
 updates:
   # npm dependencies (root)
   - package-ecosystem: npm
@@ -29,8 +23,6 @@ updates:
           - minor
           - patch
     open-pull-requests-limit: 10
-    registries:
-      - npm-npmjs
 
   # GitHub Actions
   - package-ecosystem: github-actions

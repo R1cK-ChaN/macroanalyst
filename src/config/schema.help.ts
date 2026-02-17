@@ -136,6 +136,27 @@ export const FIELD_HELP: Record<string, string> = {
   "tools.web.economicCalendar.timeoutSeconds": "Timeout in seconds for economic_calendar requests.",
   "tools.web.economicCalendar.cacheTtlMinutes":
     "Cache TTL in minutes for economic_calendar results.",
+  "tools.web.officialReportFetch.enabled": "Enable the official_report_fetch tool (default: true).",
+  "tools.web.officialReportFetch.provider":
+    'Default provider for official_report_fetch ("tradingeconomics" or "web"; default: "tradingeconomics").',
+  "tools.web.officialReportFetch.apiKey":
+    "Trading Economics API key for official_report_fetch (fallback: TRADING_ECONOMICS_API_KEY env var).",
+  "tools.web.officialReportFetch.baseUrl":
+    "Trading Economics API base URL for official_report_fetch (default: https://api.tradingeconomics.com).",
+  "tools.web.officialReportFetch.webIndicatorsUrl":
+    "Indicators discovery URL for official_report_fetch provider=web (default: https://tradingeconomics.com/analytics/indicators.aspx).",
+  "tools.web.officialReportFetch.defaultCountry":
+    'Default country filter for official_report_fetch (e.g. "united states").',
+  "tools.web.officialReportFetch.defaultDaysBack":
+    "Default lookback days when startDate is omitted for official_report_fetch (default: 14).",
+  "tools.web.officialReportFetch.maxReports":
+    "Default maximum rows returned by official_report_fetch (default: 10, cap: 50).",
+  "tools.web.officialReportFetch.maxReportChars":
+    "Maximum excerpt characters per report when includeReportBody is enabled.",
+  "tools.web.officialReportFetch.timeoutSeconds":
+    "Timeout in seconds for official_report_fetch requests.",
+  "tools.web.officialReportFetch.cacheTtlMinutes":
+    "Cache TTL in minutes for official_report_fetch results.",
   "channels.slack.allowBots":
     "Allow bot-authored messages to trigger Slack replies (default: false).",
   "channels.slack.thread.historyScope":

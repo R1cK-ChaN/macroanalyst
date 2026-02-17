@@ -443,6 +443,30 @@ export type ToolsConfig = {
       /** Cache TTL in minutes for economic calendar responses. */
       cacheTtlMinutes?: number;
     };
+    officialReportFetch?: {
+      /** Enable official_report_fetch tool (default: true). */
+      enabled?: boolean;
+      /** Default provider (default: "tradingeconomics"). */
+      provider?: "tradingeconomics" | "web";
+      /** Trading Economics API key (optional; defaults to TRADING_ECONOMICS_API_KEY env var). */
+      apiKey?: string;
+      /** Trading Economics API base URL (default: https://api.tradingeconomics.com). */
+      baseUrl?: string;
+      /** Indicators discovery web URL for provider="web". */
+      webIndicatorsUrl?: string;
+      /** Default country filter (e.g., "united states"). */
+      defaultCountry?: string;
+      /** Default lookback days when startDate is omitted (default: 14). */
+      defaultDaysBack?: number;
+      /** Default maximum report rows returned per call (default: 10, cap: 50). */
+      maxReports?: number;
+      /** Maximum excerpt characters per fetched report body. */
+      maxReportChars?: number;
+      /** Timeout in seconds for official report requests. */
+      timeoutSeconds?: number;
+      /** Cache TTL in minutes for official report responses. */
+      cacheTtlMinutes?: number;
+    };
   };
   media?: MediaToolsConfig;
   links?: LinkToolsConfig;

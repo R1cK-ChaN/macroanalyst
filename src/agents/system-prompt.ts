@@ -234,6 +234,8 @@ export function buildAgentSystemPrompt(params: {
     web_search: "Search the web (Brave API)",
     web_fetch: "Fetch and extract readable content from a URL",
     economic_calendar: "Fetch economic calendar events with actual and consensus values",
+    official_report_fetch:
+      "Resolve official publisher report links for recent economic releases using Trading Economics metadata",
     // Channel docking: add login tools here when a channel needs interactive linking.
     browser: "Control web browser",
     canvas: "Present/eval/snapshot the Canvas",
@@ -265,6 +267,7 @@ export function buildAgentSystemPrompt(params: {
     "web_search",
     "web_fetch",
     "economic_calendar",
+    "official_report_fetch",
     "browser",
     "canvas",
     "nodes",

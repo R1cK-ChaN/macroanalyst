@@ -19,7 +19,12 @@ import { createSessionsSendTool } from "./tools/sessions-send-tool.js";
 import { createSessionsSpawnTool } from "./tools/sessions-spawn-tool.js";
 import { createSubagentsTool } from "./tools/subagents-tool.js";
 import { createTtsTool } from "./tools/tts-tool.js";
-import { createEconomicCalendarTool, createWebFetchTool, createWebSearchTool } from "./tools/web-tools.js";
+import {
+  createEconomicCalendarTool,
+  createOfficialReportFetchTool,
+  createWebFetchTool,
+  createWebSearchTool,
+} from "./tools/web-tools.js";
 import { resolveWorkspaceRoot } from "./workspace-dir.js";
 
 export function createOpenClawTools(options?: {
@@ -84,6 +89,10 @@ export function createOpenClawTools(options?: {
     sandboxed: options?.sandboxed,
   });
   const economicCalendarTool = createEconomicCalendarTool({
+    config: options?.config,
+    sandboxed: options?.sandboxed,
+  });
+  const officialReportFetchTool = createOfficialReportFetchTool({
     config: options?.config,
     sandboxed: options?.sandboxed,
   });
@@ -162,6 +171,7 @@ export function createOpenClawTools(options?: {
     ...(webSearchTool ? [webSearchTool] : []),
     ...(webFetchTool ? [webFetchTool] : []),
     ...(economicCalendarTool ? [economicCalendarTool] : []),
+    ...(officialReportFetchTool ? [officialReportFetchTool] : []),
     ...(imageTool ? [imageTool] : []),
   ];
 

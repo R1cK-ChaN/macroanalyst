@@ -23,6 +23,7 @@ vi.mock("../tools/web-tools.js", () => ({
   createWebSearchTool: () => null,
   createWebFetchTool: () => null,
   createEconomicCalendarTool: () => null,
+  createOfficialReportFetchTool: () => null,
 }));
 
 vi.mock("../../plugins/tools.js", () => ({

@@ -309,6 +309,11 @@
       "title": "Economic Calendar",
       "detailKeys": ["country", "startDate", "endDate", "importance", "event", "maxEvents"]
     },
+    "official_report_fetch": {
+      "emoji": "🏛️",
+      "title": "Official Report Fetch",
+      "detailKeys": ["country", "indicator", "startDate", "endDate", "importance", "maxReports"]
+    },
     "whatsapp_login": {
       "emoji": "🟢",
       "title": "WhatsApp Login",

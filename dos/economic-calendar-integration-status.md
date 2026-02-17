@@ -241,3 +241,33 @@ Current baseline is:
 - `official_report_fetch`: two-source mode now available:
   - paid structured API mode (`provider=tradingeconomics`)
   - lower-cost web discovery mode (`provider=web`) aligned with manual analyst workflow.
+
+## Recommended Macro Workflow (Release Day)
+
+Use this workflow for macro analyst runs that must combine official data and market interpretation:
+
+1. Calendar/event discovery (`web_fetch` + Trading Economics pages)
+
+- Fetch the latest relevant macro events from Trading Economics calendar/discovery pages.
+- Use this as the trigger list for upcoming or freshly released indicators.
+
+2. Official report retrieval (`official_report_fetch` + `web_fetch`)
+
+- Resolve official publisher report links from `official_report_fetch` metadata/hints.
+- Fetch the original government/statistical agency report text with `web_fetch`.
+
+3. Bloomberg/Reuters analysis retrieval (`browser`)
+
+- Use the `browser` tool (not `web_fetch`) to access subscription/dynamic article pages.
+- Navigate Bloomberg/Reuters for release-specific analysis pieces tied to the same event/date.
+
+4. Deep synthesis handoff (macro analyst agent)
+
+- Package:
+  - official report facts/values
+  - Bloomberg/Reuters analysis findings
+- Send this package to the macro analyst agent for deep synthesis and final report generation.
+
+Skill reference:
+
+- `skills/macro-release-analysis/SKILL.md`

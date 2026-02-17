@@ -242,6 +242,31 @@ Current baseline is:
   - paid structured API mode (`provider=tradingeconomics`)
   - lower-cost web discovery mode (`provider=web`) aligned with manual analyst workflow.
 
+## Weekly Report Research Templates
+
+Two weekly-report system prompt templates are now available under:
+
+- `skills/macro-release-analysis/research/`
+
+Template 1 (weekly brief):
+
+- Path: `skills/macro-release-analysis/research/weekly-brief/SYSTEM_PROMPT.zh-CN.md`
+- Use case: generate a compact weekly macro brief from precise indicator data.
+- Core requirement: compute/validate `Net Liquidity = Fed Balance Sheet - TGA - RRP`.
+- Output constraints: exactly two paragraphs (funding/banking + real economy/consumption), objective style, high data density, and within 200 Chinese characters.
+
+Template 2 (weekly key-data comment):
+
+- Path: `skills/macro-release-analysis/research/weekly-key-data-comment/SYSTEM_PROMPT.zh-CN.md`
+- Use case: generate a short macro comment from already provided key economic data/news.
+- Core requirement: analysis must only use provided input data/news; no external assumptions.
+- Output constraints: title format `### 主题 --- 结论`, first paragraph starts with `**核心观点：**`, each body paragraph starts with a bold run-in heading sentence, and no vertical bullet lists.
+
+Template selection guidance:
+
+- If full weekly indicator panel is available (liquidity, funding, real-economy metrics), use `weekly-brief`.
+- If the input is event/news-focused key data and needs a concise professional comment, use `weekly-key-data-comment`.
+
 ## Recommended Macro Workflow (Release Day)
 
 Use this workflow for macro analyst runs that must combine official data and market interpretation:

@@ -143,7 +143,7 @@ jobs:
         run: pnpm build
 
       - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dist-build
           path: dist/
@@ -223,7 +223,7 @@ jobs:
 
       - name: Upload vitest reports
         if: matrix.task == 'test' && matrix.runtime == 'node'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
           path: |
@@ -406,7 +406,7 @@ jobs:
 
       - name: Upload vitest reports
         if: matrix.task == 'test'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: vitest-reports-${{ runner.os }}-${{ matrix.runtime }}
           path: |

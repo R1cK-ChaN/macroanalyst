@@ -10,6 +10,14 @@ Use this skill when the task is to analyze a macro data release with both:
 - official source data/report pages
 - market narrative from Bloomberg/Reuters-class media
 
+## Research prompt library
+
+- Reusable macro report-generation prompt templates live in `research/`.
+- Weekly brief template: `research/weekly-brief/SYSTEM_PROMPT.zh-CN.md`.
+- Weekly brief runs should load that file as the system prompt and provide precise indicator data as user input.
+- Weekly key-data comment template: `research/weekly-key-data-comment/SYSTEM_PROMPT.zh-CN.md`.
+- Weekly key-data comment runs should use only the already-provided data/news in input, with no extra data assumptions.
+
 ## Tool policy prerequisites
 
 - Allow `group:web` (`web_fetch`, `economic_calendar`, `official_report_fetch`)

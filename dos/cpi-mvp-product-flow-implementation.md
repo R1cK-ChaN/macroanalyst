@@ -119,14 +119,18 @@ Writes:
 Source is fixed to Reuters path in this MVP:
 
 1. Reuters site search for CPI + release date
-2. Select best Reuters article URL candidate
-3. Pull text with `web_fetch`
+2. Build 5-20 candidate URLs and fetch lightweight metadata per candidate
+3. Score candidates by time window/title/body feature/URL preference
+4. Select Top-1 only if score threshold passes (`>= 6`)
+5. Pull full text with `web_fetch` only for selected candidate
 
 Writes:
 
 - `media_raw.json`
+- `reuters_candidates.json`
+- `reuters_selection.json`
 
-If Reuters is unavailable, media step records skip reason and continues with degraded mode later.
+If Reuters is unavailable or low-confidence, media step enters degraded mode and continues.
 
 ## 6.4 Preprocess (small-model layer)
 
@@ -153,6 +157,7 @@ Builds final sell-side style report from:
 Writes:
 
 - `historical_snapshot.json`
+- `analysis_metadata.json`
 - `analysis_report.md`
 
 Fallback:
@@ -168,6 +173,7 @@ Current publish sink:
 If Telegram target is not configured:
 
 - Publish is marked skipped with reason, but state still advances to `published` for workflow completion.
+- Publish metadata includes `media_confidence` for degraded/normal traceability.
 
 Writes:
 
@@ -185,9 +191,12 @@ Files produced:
 - `event_card.json`
 - `official_artifact.json`
 - `media_raw.json`
+- `reuters_candidates.json`
+- `reuters_selection.json`
 - `official_evidence_cards.json`
 - `media_claim_cards.json`
 - `historical_snapshot.json`
+- `analysis_metadata.json`
 - `analysis_report.md`
 - `publish_result.json`
 
@@ -233,5 +242,3 @@ Still to build in next steps:
 - Replay CLI command for historical date simulation
 - Notion sink as secondary publisher
 - Indicator expansion (`NFP`, `GDP`) with mapping layer
-- More robust Reuters parsing hardening and source confidence scoring
-- Better explicit "official-only degraded publish" tags in final report metadata

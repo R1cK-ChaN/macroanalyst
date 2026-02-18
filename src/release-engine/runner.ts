@@ -173,6 +173,51 @@ function formatScalar(value: unknown): string {
   }
 }
 
+function resolveEpochMsUtc(value: string | undefined): number | undefined {
+  if (!value) {
+    return undefined;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return undefined;
+  }
+  const parsed = Date.parse(trimmed);
+  if (Number.isFinite(parsed)) {
+    return parsed;
+  }
+  const dateOnly = toDateOnly(trimmed);
+  if (!dateOnly) {
+    return undefined;
+  }
+  const parsedDateOnly = Date.parse(`${dateOnly}T00:00:00.000Z`);
+  return Number.isFinite(parsedDateOnly) ? parsedDateOnly : undefined;
+}
+
+function resolveReleaseTimeMs(event: ReleaseEventRow): number {
+  return resolveEpochMsUtc(event.date) ?? Date.now();
+}
+
+function resolveMediaText(mediaRaw: Record<string, unknown>): string {
+  const selected = asRecord(mediaRaw.selected);
+  const selectedBody = selected ? readStringField(selected, "bodyFull") : undefined;
+  if (selectedBody) {
+    return selectedBody;
+  }
+  return readStringField(mediaRaw, "text") ?? "";
+}
+
+function resolveMediaMode(mediaRaw: Record<string, unknown>): "ok" | "degraded" {
+  return readStringField(mediaRaw, "mode") === "ok" ? "ok" : "degraded";
+}
+
+function resolveMediaConfidence(mediaRaw: Record<string, unknown>): "high" | "low" {
+  const mode = resolveMediaMode(mediaRaw);
+  if (mode !== "ok") {
+    return "low";
+  }
+  return resolveMediaText(mediaRaw) ? "high" : "low";
+}
+
 function resolveRunnerConfig(cfg: OpenClawConfig): RunnerConfig {
   const agentId =
     process.env.OPENCLAW_RELEASE_ENGINE_AGENT_ID?.trim() || resolveDefaultAgentId(cfg);
@@ -707,17 +752,60 @@ async function fetchMediaArtifact(params: {
   runDir: string;
 }): Promise<void> {
   const eventDate = toDateOnly(params.event.date) ?? nowDateIso();
-  const mediaRaw = await fetchReutersMedia({
-    cfg: params.state.cfg,
-    indicator: params.state.runtime.indicator,
-    releaseDate: eventDate,
-    maxChars: 14_000,
-  });
+  const releaseTimeMs = resolveReleaseTimeMs(params.event);
+  const query = `US ${params.state.runtime.indicator} ${eventDate}`;
+  let mediaRaw: Awaited<ReturnType<typeof fetchReutersMedia>>;
+  try {
+    mediaRaw = await fetchReutersMedia({
+      cfg: params.state.cfg,
+      indicator: params.state.runtime.indicator,
+      releaseDate: eventDate,
+      releaseTimeMs,
+      maxChars: 14_000,
+    });
+  } catch (error) {
+    const fetchedAtMs = Date.now();
+    const message = error instanceof Error ? error.message : String(error);
+    mediaRaw = {
+      source: "reuters",
+      mode: "degraded",
+      reason: `reuters_fetch_exception:${message}`,
+      query,
+      searchUrl: "https://www.reuters.com/site-search/",
+      releaseTimeMs,
+      releaseTimeIso: new Date(releaseTimeMs).toISOString(),
+      fetchedAtMs,
+      fetchedAtIso: new Date(fetchedAtMs).toISOString(),
+      selected: null,
+      alternates: [],
+      candidates: [],
+    };
+  }
+  const mediaConfidence = mediaRaw.mode === "ok" ? "high" : "low";
+  const reutersSelection = {
+    mode: mediaRaw.mode,
+    reason: mediaRaw.reason,
+    release_time_ms: mediaRaw.releaseTimeMs,
+    release_time_iso: mediaRaw.releaseTimeIso,
+    article_time_ms: mediaRaw.articleTimeMs,
+    article_time_iso: mediaRaw.articleTimeIso,
+    fetched_at_ms: mediaRaw.fetchedAtMs,
+    fetched_at_iso: mediaRaw.fetchedAtIso,
+    selected: mediaRaw.selected ?? null,
+    alternates: mediaRaw.alternates ?? [],
+  };
   await writeRunJson(params.runDir, "media_raw.json", mediaRaw);
+  await writeRunJson(params.runDir, "reuters_candidates.json", mediaRaw.candidates ?? []);
+  await writeRunJson(params.runDir, "reuters_selection.json", reutersSelection);
   await updateRunManifest(params.runDir, {
     step: "fetched_media",
-    mediaSkipped: Boolean(mediaRaw.skipped),
+    mediaMode: mediaRaw.mode,
+    mediaConfidence,
+    mediaReason: mediaRaw.reason,
     mediaArticleUrl: mediaRaw.articleUrl,
+    releaseTimeMs: mediaRaw.releaseTimeMs,
+    articleTimeMs: mediaRaw.articleTimeMs,
+    fetchedAtMs: mediaRaw.fetchedAtMs,
   });
 }
 
@@ -732,7 +820,9 @@ async function preprocessEvidence(params: {
   }
   const mediaRaw = (await readRunJson(params.runDir, "media_raw.json")) ?? {};
   const officialText = readStringField(officialArtifact, "reportText") ?? "";
-  const mediaText = readStringField(mediaRaw, "text") ?? "";
+  const mediaText = resolveMediaText(mediaRaw);
+  const mediaMode = resolveMediaMode(mediaRaw);
+  const mediaConfidence = resolveMediaConfidence(mediaRaw);
 
   const officialPrompt = [
     "You extract macro release evidence cards.",
@@ -749,6 +839,7 @@ async function preprocessEvidence(params: {
     "You extract market narrative claim cards.",
     'Return JSON only with schema: {"claims":[{"claim":"...","reason":"...","quote":"..."}]}',
     "Use only the provided Reuters text and avoid adding external assumptions.",
+    `Media mode: ${mediaMode}; confidence: ${mediaConfidence}.`,
     "",
     `Reuters text:\n${truncateForPrompt(mediaText, 10_000)}`,
   ].join("\n");
@@ -792,6 +883,8 @@ async function preprocessEvidence(params: {
   await writeRunJson(params.runDir, "media_claim_cards.json", mediaCards);
   await updateRunManifest(params.runDir, {
     step: "preprocessed",
+    mediaMode,
+    mediaConfidence,
   });
 }
 
@@ -838,6 +931,10 @@ async function generateAnalysis(params: {
 }): Promise<string> {
   const officialCards = (await readRunJson(params.runDir, "official_evidence_cards.json")) ?? {};
   const mediaCards = (await readRunJson(params.runDir, "media_claim_cards.json")) ?? {};
+  const mediaRaw = (await readRunJson(params.runDir, "media_raw.json")) ?? {};
+  const mediaMode = resolveMediaMode(mediaRaw);
+  const mediaConfidence = resolveMediaConfidence(mediaRaw);
+  const mediaReason = readStringField(mediaRaw, "reason");
   const eventDate = toDateOnly(params.event.date) ?? nowDateIso();
   const history = await fetchHistoricalSeries({
     state: params.state,
@@ -848,12 +945,22 @@ async function generateAnalysis(params: {
     eventDate,
     items: history,
   });
+  await writeRunJson(params.runDir, "analysis_metadata.json", {
+    media_confidence: mediaConfidence,
+    media_mode: mediaMode,
+    media_reason: mediaReason,
+    generated_at: new Date().toISOString(),
+  });
 
   const analysisPrompt = [
     "You are a sell-side macro analyst.",
     "Generate a structured 6-section post-release report for US CPI.",
     "Use only the provided evidence cards, release event card, and 6-period history snapshot.",
     "Do not use external assumptions.",
+    `Media confidence: ${mediaConfidence}.`,
+    `Media mode: ${mediaMode}.`,
+    mediaReason ? `Media reason: ${mediaReason}.` : "Media reason: n/a.",
+    "If media confidence is low, prioritize official evidence and treat media claims as optional context.",
     "Required sections:",
     "## 1) Headline Surprise",
     "## 2) Details and Decomposition",
@@ -900,15 +1007,18 @@ async function publishReport(params: {
   event: ReleaseEventRow;
   runDir: string;
   reportText: string;
+  analysisMetadata: Record<string, unknown>;
 }): Promise<Record<string, unknown>> {
   const eventDate = toDateOnly(params.event.date) ?? nowDateIso();
   const headline = `US CPI Auto Report (${eventDate})`;
-  const composed = `${headline}\n\n${params.reportText}`;
+  const mediaConfidence = readStringField(params.analysisMetadata, "media_confidence") ?? "low";
+  const composed = `${headline}\nmeta: media_confidence=${mediaConfidence}\n\n${params.reportText}`;
 
   if (!params.state.runtime.telegramTarget) {
     return {
       skipped: true,
       reason: "telegram_target_not_configured",
+      media_confidence: mediaConfidence,
     };
   }
 
@@ -930,6 +1040,7 @@ async function publishReport(params: {
     channel: "telegram",
     to: params.state.runtime.telegramTarget,
     accountId: params.state.runtime.telegramAccountId,
+    media_confidence: mediaConfidence,
     results,
   };
 }
@@ -1019,16 +1130,19 @@ async function processSingleEvent(params: {
       case "analyzed": {
         const reportPath = path.join(runDir, "analysis_report.md");
         const reportText = (await fs.readFile(reportPath, "utf8")).trim();
+        const analysisMetadata = (await readRunJson(runDir, "analysis_metadata.json")) ?? {};
         const publishResult = await publishReport({
           state: params.state,
           event: params.event,
           runDir,
           reportText,
+          analysisMetadata,
         });
         await writeRunJson(runDir, "publish_result.json", publishResult);
         await updateRunManifest(runDir, {
           step: "published",
           publishResult,
+          mediaConfidence: readStringField(analysisMetadata, "media_confidence") ?? "low",
         });
         await markStateAdvanced({
           storePath: params.state.storePath,

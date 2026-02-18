@@ -1,6 +1,7 @@
 import type { CliDeps } from "../cli/deps.js";
 import type { loadConfig } from "../config/config.js";
 import type { HeartbeatRunner } from "../infra/heartbeat-runner.js";
+import type { MacroReleaseRunner } from "../release-engine/index.js";
 import type { ChannelKind, GatewayReloadPlan } from "./config-reload.js";
 import { getActiveEmbeddedRunCount } from "../agents/pi-embedded-runner/runs.js";
 import { getTotalPendingReplies } from "../auto-reply/reply/dispatcher-registry.js";
@@ -22,6 +23,7 @@ import { buildGatewayCronService, type GatewayCronState } from "./server-cron.js
 type GatewayHotReloadState = {
   hooksConfig: ReturnType<typeof resolveHooksConfig>;
   heartbeatRunner: HeartbeatRunner;
+  macroReleaseRunner: MacroReleaseRunner;
   cronState: GatewayCronState;
   browserControl: Awaited<ReturnType<typeof startBrowserControlServerIfEnabled>> | null;
 };
@@ -62,6 +64,7 @@ export function createGatewayReloadHandlers(params: {
     if (plan.restartHeartbeat) {
       nextState.heartbeatRunner.updateConfig(nextConfig);
     }
+    nextState.macroReleaseRunner.updateConfig(nextConfig);
 
     resetDirectoryCache();
 

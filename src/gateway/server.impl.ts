@@ -46,6 +46,7 @@ import { createSubsystemLogger, runtimeForLogger } from "../logging/subsystem.js
 import { getGlobalHookRunner, runGlobalGatewayStopSafely } from "../plugins/hook-runner-global.js";
 import { createEmptyPluginRegistry } from "../plugins/registry.js";
 import { getTotalQueueSize } from "../process/command-queue.js";
+import { startMacroReleaseRunner, type MacroReleaseRunner } from "../release-engine/index.js";
 import { runOnboardingWizard } from "../wizard/onboarding.js";
 import { createAuthRateLimiter, type AuthRateLimiter } from "./auth-rate-limit.js";
 import { startGatewayConfigReloader } from "./config-reload.js";
@@ -501,6 +502,15 @@ export async function startGatewayServer(
         updateConfig: () => {},
       }
     : startHeartbeatRunner({ cfg: cfgAtStart });
+  let macroReleaseRunner: MacroReleaseRunner = minimalTestGateway
+    ? {
+        stop: () => {},
+        updateConfig: () => {},
+      }
+    : startMacroReleaseRunner({
+        cfg: cfgAtStart,
+        deps,
+      });
 
   if (!minimalTestGateway) {
     void cron.start().catch((err) => logCron.error(`failed to start: ${String(err)}`));
@@ -644,12 +654,14 @@ export async function startGatewayServer(
           getState: () => ({
             hooksConfig,
             heartbeatRunner,
+            macroReleaseRunner,
             cronState,
             browserControl,
           }),
           setState: (nextState) => {
             hooksConfig = nextState.hooksConfig;
             heartbeatRunner = nextState.heartbeatRunner;
+            macroReleaseRunner = nextState.macroReleaseRunner;
             cronState = nextState.cronState;
             cron = cronState.cron;
             cronStorePath = cronState.storePath;
@@ -687,6 +699,7 @@ export async function startGatewayServer(
     pluginServices,
     cron,
     heartbeatRunner,
+    macroReleaseRunner,
     nodePresenceTimers,
     broadcast,
     tickInterval,

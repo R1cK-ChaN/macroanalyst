@@ -154,3 +154,4 @@ Suggested replay checks for 3 historical CPI events:
 3. Any Reuters failure still publishes with degraded mode (official-only path)
 
 next step can try dingding group as info source, see whether the agent can parse from dingding group stablily or not.
+make an group chat info aggregate agent 

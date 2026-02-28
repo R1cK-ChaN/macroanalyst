@@ -10,6 +10,7 @@
     "apps/",
     "assets/",
     "dist/",
+    "dos/",
     "docs/_layouts/",
     "node_modules/",
     "patches/",

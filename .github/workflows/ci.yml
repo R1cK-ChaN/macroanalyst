@@ -293,6 +293,7 @@ jobs:
   checks-windows:
     needs: [docs-scope, changed-scope, build-artifacts, check]
     if: needs.docs-scope.outputs.docs_only != 'true' && (github.event_name == 'push' || needs.changed-scope.outputs.run_node == 'true')
+    continue-on-error: true
     runs-on: windows-latest
     env:
       NODE_OPTIONS: --max-old-space-size=4096

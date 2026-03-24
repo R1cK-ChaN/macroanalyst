@@ -126,7 +126,7 @@
     "ui:install": "node scripts/ui.js install"
   },
   "dependencies": {
-    "@agentclientprotocol/sdk": "0.14.1",
+    "@agentclientprotocol/sdk": "0.16.1",
     "@aws-sdk/client-bedrock": "^3.990.0",
     "@buape/carbon": "0.14.0",
     "@clack/prompts": "^1.0.1",
@@ -136,10 +136,10 @@
     "@larksuiteoapi/node-sdk": "^1.59.0",
     "@line/bot-sdk": "^10.6.0",
     "@lydell/node-pty": "1.2.0-beta.3",
-    "@mariozechner/pi-agent-core": "0.52.12",
-    "@mariozechner/pi-ai": "0.52.12",
-    "@mariozechner/pi-coding-agent": "0.52.12",
-    "@mariozechner/pi-tui": "0.52.12",
+    "@mariozechner/pi-agent-core": "0.58.4",
+    "@mariozechner/pi-ai": "0.58.4",
+    "@mariozechner/pi-coding-agent": "0.58.4",
+    "@mariozechner/pi-tui": "0.58.4",
     "@mozilla/readability": "^0.6.0",
     "@sinclair/typebox": "0.34.48",
     "@slack/bolt": "^4.6.0",
@@ -172,7 +172,7 @@
     "sharp": "^0.34.5",
     "signal-utils": "^0.21.1",
     "sqlite-vec": "0.1.7-alpha.2",
-    "tar": "7.5.9",
+    "tar": "7.5.11",
     "tslog": "^4.10.2",
     "undici": "^7.22.0",
     "ws": "^8.19.0",
@@ -217,7 +217,7 @@
       "form-data": "2.5.4",
       "qs": "6.14.2",
       "@sinclair/typebox": "0.34.48",
-      "tar": "7.5.9",
+      "tar": "7.5.11",
       "tough-cookie": "4.1.3"
     },
     "onlyBuiltDependencies": [
